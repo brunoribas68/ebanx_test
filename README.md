@@ -4,12 +4,12 @@ API financeira simples implementada em Laravel 11. Gerencia contas e saldos via 
 
 ## Stack
 
-| | |
-|---|---|
-| Linguagem | PHP 8.4 |
-| Framework | Laravel 11 |
+| |                                             |
+|---|---------------------------------------------|
+| Linguagem | PHP 8.4                                     |
+| Framework | Laravel 13                                  |
 | Persistência | Arquivo JSON em `storage/app/accounts.json` |
-| Testes | PHPUnit via `php artisan test` |
+| Testes | PHPUnit via `php artisan test`              |
 | Docker | `Dockerfile` + `docker-compose.yml` na raiz |
 
 ---
