@@ -1,58 +1,241 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EBANX – Take-home Assignment
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API financeira simples implementada em Laravel 11. Gerencia contas e saldos via três operações: depósito, saque e transferência.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| | |
+|---|---|
+| Linguagem | PHP 8.4 |
+| Framework | Laravel 11 |
+| Persistência | Arquivo JSON em `storage/app/accounts.json` |
+| Testes | PHPUnit via `php artisan test` |
+| Docker | `Dockerfile` + `docker-compose.yml` na raiz |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Rodando o projeto
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Com Docker (recomendado)
 
 ```bash
-composer require laravel/boost --dev
+# Clonar e entrar no diretório
+git clone <repo-url>
+cd ebanx-api
 
-php artisan boost:install
+# Copiar variáveis de ambiente
+cp .env.example .env
+
+# Build e start (a primeira vez baixa a imagem base)
+docker compose up --build
+
+# API disponível em http://localhost:8000
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Sem Docker
 
-## Contributing
+Requisitos: PHP 8.2+, Composer.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan serve
+# API disponível em http://localhost:8000
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Rodando os testes
 
-## Security Vulnerabilities
+```bash
+php artisan test
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Saída esperada:
 
-## License
+```
+PASS  Tests\Unit\AccountServiceTest
+Tests\Unit\AccountServiceTest
+  ✓ reset clears all existing accounts
+  ✓ reset on empty state does not throw
+  ✓ get balance returns null for unknown account
+  ✓ get balance returns correct value after deposit
+  ✓ get balance is read only and does not create the account
+  ✓ get balance called twice returns same value
+  ✓ deposit creates account when it does not exist
+  ✓ deposit persists balance readable via get balance
+  ✓ deposit accumulates on existing account
+  ✓ deposit does not affect other accounts
+  ✓ withdraw returns null for unknown account
+  ✓ withdraw reduces balance correctly
+  ✓ withdraw persists new balance
+  ✓ withdraw failure does not create account
+  ✓ withdraw failure does not affect other accounts
+  ✓ transfer returns null when origin does not exist
+  ✓ transfer deducts from origin
+  ✓ transfer adds to destination
+  ✓ transfer creates destination if it does not exist
+  ✓ transfer returns both updated accounts
+  ✓ transfer failure is atomic destination unchanged
+  ✓ transfer is atomic origin not modified on failure
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+PASS  Tests\Feature\AccountApiTest
+Tests\Feature\AccountApiTest
+  ✓ reset returns 200 ok
+  ✓ reset wipes all accounts
+  ✓ reset is idempotent when called on empty state
+  ✓ balance returns 404 for non existing account
+  ✓ balance returns 200 with correct value
+  ✓ balance reflects multiple deposits
+  ✓ balance does not change state on multiple reads
+  ✓ balance does not create account for unknown id
+  ✓ deposit creates account with initial balance
+  ✓ deposit into existing account accumulates balance
+  ✓ deposit does not affect other accounts
+  ✓ deposit missing destination returns error
+  ✓ deposit with zero amount returns error
+  ✓ deposit with negative amount returns error
+  ✓ withdraw from non existing account returns 404
+  ✓ withdraw from existing account reduces balance
+  ✓ withdraw failure does not create account
+  ✓ withdraw failure does not affect other accounts
+  ✓ withdraw missing origin returns error
+  ✓ transfer from non existing account returns 404
+  ✓ transfer deducts from origin
+  ✓ transfer adds to destination
+  ✓ transfer returns both accounts in response
+  ✓ transfer creates destination account when it does not exist
+  ✓ transfer failure is atomic destination unchanged
+  ✓ transfer missing origin returns error
+  ✓ transfer missing destination returns error
+  ✓ unknown event type returns error
+  ✓ full ebanx automated suite sequence
+```
+
+---
+
+## Referência da API
+
+### `POST /reset`
+
+Limpa todas as contas. Usado pelo test suite antes de cada rodada.
+
+**Resposta**
+```
+200 OK
+```
+
+---
+
+### `GET /balance?account_id={id}`
+
+Retorna o saldo atual de uma conta. Operação de leitura pura — não altera estado.
+
+**Respostas**
+
+| Status | Body | Condição |
+|--------|------|----------|
+| `200` | `20` | Conta existe |
+| `404` | `0` | Conta não existe |
+
+**Exemplo**
+```
+GET /balance?account_id=100
+→ 200  20
+```
+
+---
+
+### `POST /event`
+
+Processa um evento financeiro. O campo `type` determina a operação.
+
+**Corpo da requisição (JSON)**
+
+| Campo | Tipo | Obrigatório em |
+|-------|------|----------------|
+| `type` | `"deposit"` \| `"withdraw"` \| `"transfer"` | sempre |
+| `amount` | número positivo | sempre |
+| `destination` | string | `deposit`, `transfer` |
+| `origin` | string | `withdraw`, `transfer` |
+
+#### Deposit
+
+Cria a conta se não existir. Acumula saldo se já existir.
+
+```bash
+POST /event
+{"type":"deposit", "destination":"100", "amount":10}
+
+→ 201
+{"destination":{"id":"100","balance":10}}
+```
+
+#### Withdraw
+
+```bash
+POST /event
+{"type":"withdraw", "origin":"100", "amount":5}
+
+→ 201                                       # conta existe
+{"origin":{"id":"100","balance":15}}
+
+→ 404  0                                    # conta não existe
+```
+
+#### Transfer
+
+Deduz da origem e credita no destino atomicamente. Cria a conta de destino se não existir.
+
+```bash
+POST /event
+{"type":"transfer", "origin":"100", "amount":15, "destination":"300"}
+
+→ 201                                       # origem existe
+{"origin":{"id":"100","balance":0},"destination":{"id":"300","balance":15}}
+
+→ 404  0                                    # origem não existe
+```
+
+**Erros de validação**
+
+Campos obrigatórios ausentes, `amount` zero ou negativo, ou `type` desconhecido retornam `422 0`.
+
+---
+
+## Estrutura do projeto
+
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   └── AccountController.php   # camada HTTP: parseia request, formata response
+│   └── Requests/
+│       └── EventRequest.php        # validação de input do POST /event
+├── Providers/
+│   └── AppServiceProvider.php      # registra AccountService no container
+└── Services/
+    └── AccountService.php          # toda a lógica de negócio
+
+bootstrap/
+└── app.php                         # remove o prefixo /api das rotas
+
+routes/
+└── api.php                         # definição das rotas
+
+tests/
+├── Feature/
+│   └── AccountApiTest.php          # testa cada rota HTTP individualmente
+└── Unit/
+    └── AccountServiceTest.php      # testa lógica de negócio sem HTTP
+
+Dockerfile                          # imagem de produção (php:8.4-cli-alpine)
+docker-compose.yml                  # orquestração local
+```
+
+---
+
+## Decisões de design
+
+Para a documentação técnica completa, incluindo o raciocínio por trás de cada decisão, ver [ARCHITECTURE.md](./ARCHITECTURE.md).
