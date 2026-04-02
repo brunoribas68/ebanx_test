@@ -1,6 +1,6 @@
 # EBANX – Take-home Assignment
 
-API financeira simples implementada em Laravel 11. Gerencia contas e saldos via três operações: depósito, saque e transferência.
+API financeira simples implementada em Laravel 13. Gerencia contas e saldos via três operações: depósito, saque e transferência.
 
 ## Stack
 
